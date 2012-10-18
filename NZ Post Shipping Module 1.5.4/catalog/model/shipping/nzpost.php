@@ -126,8 +126,6 @@ class ModelShippingNZPost extends Model {
 			curl_close($ch);
 			
 			$result = json_decode($response);
-			print_r($result);
-			
 			
 			$error = '';
 			$error_msg = '';
@@ -191,8 +189,6 @@ class ModelShippingNZPost extends Model {
 			curl_close($ch);
 			
 			$result = json_decode($response);
-			//print_r($result);
-			//exit;
 			
 			$error = '';
 			$error_msg = '';
