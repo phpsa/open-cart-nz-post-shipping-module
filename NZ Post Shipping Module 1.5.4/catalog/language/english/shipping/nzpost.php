@@ -26,8 +26,8 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	18 October 2012
-	Version:	0.2
+	Updated: 	25 October 2012
+	Version:	0.3
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
@@ -41,7 +41,7 @@
 				I will happily provide a budget estimate.
 				
 	Thanks:		Thanks to Daniel Kerr at Open Cart for providing the best
-				Open Source Cart I have ever worked with and the Development
+				Open Source Cart around and the Development
 				Team at NZ Post for providing the API.
 				
 	---------------------------------------------------------------------
