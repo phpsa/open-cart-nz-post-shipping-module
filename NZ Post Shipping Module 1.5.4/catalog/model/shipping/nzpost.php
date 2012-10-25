@@ -50,6 +50,7 @@ class ModelShippingNZPost extends Model {
 	function getQuote($address) {
 		$this->load->language('shipping/nzpost');
 		
+		$method_data = array();
 		
 		$length_class = $this->getLengthClassId('mm');
 		$weight_class = $this->getWeightClassId('kg');
@@ -80,7 +81,6 @@ class ModelShippingNZPost extends Model {
 			return $method_data;
 		}
 		
-		
 		if ($this->config->get('nzpost_status')) {
       		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('nzpost_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 		
@@ -94,8 +94,6 @@ class ModelShippingNZPost extends Model {
 		} else {
 			$status = FALSE;
 		}
-		
-		$method_data = array();
 		
 		$weight = $this->weight->convert($this->cart->getWeight(), $this->config->get('config_weight_class_id'), $weight_class);
 		$weight = ($weight < 0.1 ? 0.1 : $weight);
@@ -137,9 +135,9 @@ class ModelShippingNZPost extends Model {
 					if((($this->config->get('nzpost_national_signature')=='') || $product->signature == '1') && 
 					   (($this->config->get('nzpost_national_tracking')=='') || $product->tracked == '1') &&
 					   (($this->config->get('nzpost_national_postage_only')=='') || $product->packaging == 'postage_only')){
-						$quote_data['nzpost_'.$product->service_code] = array(
-							'code'         => 'nzpost.nzpost_'.$product->service_code,
-							'title'        => $product->description.' ('.$product->speed_description.')',
+						$quote_data['nzpost_'.$product->code] = array(
+							'code'         => 'nzpost.nzpost_'.$product->code,
+							'title'        => $product->description.' '.$product->speed_description,
 							'cost'         => $this->currency->convert($product->cost, 'NZD', $this->config->get('config_currency')),
 							'tax_class_id' => $this->config->get('nzpost_tax_class_id'),
 							'text'         => $this->currency->format($this->tax->calculate($this->currency->convert($product->cost, $this->config->get('config_currency'), $this->currency->getCode()), $this->config->get('nzpost_tax_class_id'), $this->config->get('config_tax')))
@@ -227,6 +225,17 @@ class ModelShippingNZPost extends Model {
 				'error'      => $error_msg
 			);
 		}
+		
+		if ($quote_data) {
+			$method_data = array(
+				'code'       => 'nzpost',
+				'title'      => $this->language->get('text_title'),
+				'quote'      => $quote_data,
+				'sort_order' => $this->config->get('nzpost_sort_order'),
+				'error'      => false
+			);
+		}
+			
 		return $method_data;
 	}
 
