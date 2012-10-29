@@ -26,7 +26,7 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	25 October 2012
+	Updated: 	30 October 2012
 	Version:	0.3
 	
 	Notes:		This module is provided for free, I hope it proves useful
@@ -41,7 +41,7 @@
 				I will happily provide a budget estimate.
 				
 	Thanks:		Thanks to Daniel Kerr at Open Cart for providing the best
-				Open Source Cart around and the Development
+				Open Source Cart I have ever worked with and the Development
 				Team at NZ Post for providing the API.
 				
 	---------------------------------------------------------------------
@@ -67,7 +67,9 @@ class ModelShippingNZPost extends Model {
 			return $method_data;
 		}
 		
-		$volume = $this->getCubicVolume();
+		// Volume
+		$volume = $this->getCubicVolume($length_class);
+		
 		if($volume == 0)
 		{
 			$quote_data = array();
@@ -80,6 +82,9 @@ class ModelShippingNZPost extends Model {
 			);
 			return $method_data;
 		}
+		$packageLength = pow($volume, 1/3);
+		$packageWidth = pow($volume, 1/3);
+		$packageHeight = pow($volume, 1/3);
 		
 		if ($this->config->get('nzpost_status')) {
       		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('nzpost_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
@@ -95,14 +100,10 @@ class ModelShippingNZPost extends Model {
 			$status = FALSE;
 		}
 		
+		// Weight
 		$weight = $this->weight->convert($this->cart->getWeight(), $this->config->get('config_weight_class_id'), $weight_class);
 		$weight = ($weight < 0.1 ? 0.1 : $weight);
 		
-		$volume = $this->length->convert($volume, $this->config->get('config_length_class_id'), $length_class);
-		$packageLength = pow($volume, 1/3);
-		$packageWidth = pow($volume, 1/3);
-		$packageHeight = pow($volume, 1/3);
-			
 		// NZ National
 		if ($status && $address['iso_code_2'] == 'NZ') {
 			
@@ -199,10 +200,10 @@ class ModelShippingNZPost extends Model {
 					   (($this->config->get('nzpost_international_tracking')=='') || $product->has_tracking == '1')){
 						$quote_data['nzpost_'.$product->service_code] = array(
 							'code'         => 'nzpost.nzpost_'.$product->service_code,
-							'title'        => $product->group,
-							'cost'         => $this->currency->convert($product->price_including_gst, 'NZD', $this->config->get('config_currency')),
+							'title'        => $product->group.' - '.$product->min_delivery_target.'-'.$product->max_delivery_target.' days.',
+							'cost'         => $this->currency->convert($product->price, 'NZD', $this->config->get('config_currency')),
 							'tax_class_id' => $this->config->get('nzpost_international_tax_class_id'),
-							'text'         => $this->currency->format($this->tax->calculate($this->currency->convert($product->price_including_gst, $this->config->get('config_currency'), $this->currency->getCode()), $this->config->get('nzpost_tax_class_id'), $this->config->get('config_tax')))
+							'text'         => $this->currency->format($this->tax->calculate($this->currency->convert($product->price, 'NZD', $this->currency->getCode()), $this->config->get('nzpost_international_tax_class_id'), $this->config->get('config_tax')), $this->currency->getCode(), 1.0000000)
 						);
 					}
 				}
@@ -239,7 +240,7 @@ class ModelShippingNZPost extends Model {
 		return $method_data;
 	}
 
-	function getCubicVolume()
+	function getCubicVolume($nzpost_length_class_id)
 	{
 		$totalVolume = 0;
 		foreach ($this->cart->getProducts() as $key=>$attrs) {
@@ -250,9 +251,9 @@ class ModelShippingNZPost extends Model {
 				$height = trim($attrs['height']);
 				if (is_numeric($length) && $length > 0 && is_numeric($width) && $width > 0 && is_numeric($height) && $height > 0) {
 					
-					$length = $this->length->convert($length, $attrs['length_class_id'], $this->config->get('config_length_class_id'));
-					$width = $this->length->convert($width, $attrs['length_class_id'], $this->config->get('config_length_class_id'));
-					$height = $this->length->convert($height, $attrs['length_class_id'], $this->config->get('config_length_class_id'));
+					$length = $this->length->convert($length, $attrs['length_class_id'], $nzpost_length_class_id);
+					$width = $this->length->convert($width, $attrs['length_class_id'], $nzpost_length_class_id);
+					$height = $this->length->convert($height, $attrs['length_class_id'], $nzpost_length_class_id);
 					
 					$totalVolume = $totalVolume + ($quantity * ($length * ($width * $height)));
 				}
