@@ -1,0 +1,13 @@
+Extract the zip archive using your favorite expanding tool such as 7Zip "http://www.7-zip.org/".
+
+Backup your current install, file system and database.
+
+Navigate the extracted folder and drag and drop the "admin" and "catalog" folders into your store root folder. The contents of the "admin" and "catalog" folder should merge with the existing files and overwrite any old "NZ Post" module files.
+
+Alternatively, if you are more comfortable you can copy the individual files one by one into the corresponding directories.
+
+Take care to ensure the files are copied to the correct locations.
+
+Open your admin console,  navigate to the "Extensions" tab and "Shipping" drop down option. You should see "NZ Post" appear in the list. Click "Install" then "Edit" then assign your API Key from NZ Post developer team. Assign your options and tax then enable the module for testing.
+
+Please review the read me file to ensure you have configured sizes and weights of your products and understand the limitations of the volume calculation. It is recommended you choose "Quote for Parcels Only" which gives a more accurate estimate for multiple items and avoids receiving quotes for flat packs.
