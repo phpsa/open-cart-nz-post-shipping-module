@@ -26,8 +26,8 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	30 October 2012
-	Version:	0.3
+	Updated: 	6 November 2012
+	Version:	0.4
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
@@ -54,6 +54,7 @@ class ModelShippingNZPost extends Model {
 		
 		$length_class = $this->getLengthClassId('mm');
 		$weight_class = $this->getWeightClassId('kg');
+		
 		if($length_class == 0 || $weight_class == 0)
 		{
 			$quote_data = array();
@@ -67,42 +68,59 @@ class ModelShippingNZPost extends Model {
 			return $method_data;
 		}
 		
-		// Volume
-		$volume = $this->getCubicVolume($length_class);
-		
-		if($volume == 0)
+		// Sing Items
+		if($this->getItemsCount() == 1)
 		{
-			$quote_data = array();
-			$method_data = array(
-				'code'       => 'nzpost',
-				'title'      => $this->language->get('text_title'),
-				'quote'      => $quote_data,
-				'sort_order' => $this->config->get('nzpost_sort_order'),
-				'error'      => $this->language->get('error_volume')
-			);
-			return $method_data;
+			// Weight and Dimensions
+			$weightAndDimension = $this->getItemWeightAndDimension($length_class, $weight_class);
+			// For Parcel Only Deliveries, Ensure Minimum 75mm Dimensions
+			$packageLength = ($this->config->get('nzpost_national_postage_only')=='' || $weightAndDimension['length']>75)? $weightAndDimension['length']:75;
+			$packageWidth = ($this->config->get('nzpost_national_postage_only')=='' || $weightAndDimension['width']>75)? $weightAndDimension['width']:75;
+			$packageHeight = ($this->config->get('nzpost_national_postage_only')=='' || $weightAndDimension['height']>75)? $weightAndDimension['height']:75;
+			
+			// Weight
+			$weight = $weightAndDimension['weight'];
+			$weight = ($weight < 0.1 ? 0.1 : $weight);
 		}
-		$packageLength = pow($volume, 1/3);
-		$packageWidth = pow($volume, 1/3);
-		$packageHeight = pow($volume, 1/3);
+		else
+		{
+			// Cubic Volume
+			$volume = $this->getCubicVolume($length_class);
+			if($volume == 0)
+			{
+				$quote_data = array();
+				$method_data = array(
+					'code'       => 'nzpost',
+					'title'      => $this->language->get('text_title'),
+					'quote'      => $quote_data,
+					'sort_order' => $this->config->get('nzpost_sort_order'),
+					'error'      => $this->language->get('error_volume')
+				);
+				return $method_data;
+			}
+			// For Parcel Only Deliveries, Ensure Minimum 75mm Dimensions
+			$packageLength = ($this->config->get('nzpost_national_postage_only')=='' || pow($volume, 1/3)>75)? pow($volume, 1/3): 75;
+			$packageWidth = ($this->config->get('nzpost_national_postage_only')=='' || pow($volume, 1/3)>75)? pow($volume, 1/3): 75;
+			$packageHeight = ($this->config->get('nzpost_national_postage_only')=='' || pow($volume, 1/3)>75)? pow($volume, 1/3): 75;
+			
+			// Weight
+			$weight = $this->weight->convert($this->cart->getWeight(), $this->config->get('config_weight_class_id'), $weight_class);
+			$weight = ($weight < 0.1 ? 0.1 : $weight);
+		}
 		
 		if ($this->config->get('nzpost_status')) {
-      		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('nzpost_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('nzpost_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 		
-      		if (!$this->config->get('nzpost_geo_zone_id')) {
-        		$status = TRUE;
-      		} elseif ($query->num_rows) {
-        		$status = TRUE;
-      		} else {
-        		$status = FALSE;
-      		}
+			if (!$this->config->get('nzpost_geo_zone_id')) {
+				$status = TRUE;
+			} elseif ($query->num_rows) {
+				$status = TRUE;
+			} else {
+				$status = FALSE;
+			}
 		} else {
 			$status = FALSE;
 		}
-		
-		// Weight
-		$weight = $this->weight->convert($this->cart->getWeight(), $this->config->get('config_weight_class_id'), $weight_class);
-		$weight = ($weight < 0.1 ? 0.1 : $weight);
 		
 		// NZ National
 		if ($status && $address['iso_code_2'] == 'NZ') {
@@ -126,28 +144,46 @@ class ModelShippingNZPost extends Model {
 			
 			$result = json_decode($response);
 			
-			$error = '';
-			$error_msg = '';
-			
 			$quote_data = array();
-			
 			if ($result->status == "success") {
 				foreach ($result->products as $product) {
+					$exclusive = ($product->cost - (($product->cost*3)/23));
 					if((($this->config->get('nzpost_national_signature')=='') || $product->signature == '1') && 
 					   (($this->config->get('nzpost_national_tracking')=='') || $product->tracked == '1') &&
+					   ((($this->config->get('nzpost_national_standard')=='1') && $product->delivery_rank == '1.5') ||
+					   (($this->config->get('nzpost_national_express')=='1') && $product->delivery_rank == '1')) &&
 					   (($this->config->get('nzpost_national_postage_only')=='') || $product->packaging == 'postage_only')){
 						$quote_data['nzpost_'.$product->code] = array(
 							'code'         => 'nzpost.nzpost_'.$product->code,
 							'title'        => $product->description.' '.$product->speed_description,
-							'cost'         => $this->currency->convert($product->cost, 'NZD', $this->config->get('config_currency')),
+							'cost'         => $this->currency->convert($exclusive, 'NZD', $this->config->get('config_currency')),
 							'tax_class_id' => $this->config->get('nzpost_tax_class_id'),
-							'text'         => $this->currency->format($this->tax->calculate($this->currency->convert($product->cost, $this->config->get('config_currency'), $this->currency->getCode()), $this->config->get('nzpost_tax_class_id'), $this->config->get('config_tax')))
+							'text'         => $this->currency->format($this->tax->calculate($this->currency->convert($exclusive, $this->config->get('config_currency'), $this->currency->getCode()), $this->config->get('nzpost_tax_class_id'), $this->config->get('config_tax')))
 						);
 					}
 				}
+				
+				if(count($quote_data) == 0)
+				{
+					$method_data = array(
+						'code'       => 'nzpost',
+						'title'      => $this->language->get('text_title'),
+						'quote'      => $quote_data,
+						'sort_order' => $this->config->get('nzpost_sort_order'),
+						'error'      => $this->language->get('error_no_services')
+					);
+					return $method_data;
+				}
+				
 			} else {
-				$error = $result->status;
-				$error_msg = '';
+				$method_data = array(
+					'code'       => 'nzpost',
+					'title'      => $this->language->get('text_title'),
+					'quote'      => $quote_data,
+					'sort_order' => $this->config->get('nzpost_sort_order'),
+					'error'      => $this->language->get('error_failed')
+				);
+				return $method_data;
 			}
 			
 			$title = $this->language->get('text_title');
@@ -155,14 +191,6 @@ class ModelShippingNZPost extends Model {
 			if ($this->config->get('nzpost_display_weight')) {	  
 				$title .= ' (' . $this->language->get('text_weight') . ' ' . $this->weight->format($weight, $this->config->get('nzpost_weight_class_id')) . ')';
 			}
-		
-			$method_data = array(
-				'code'       => 'nzpost',
-				'title'      => $title,
-				'quote'      => $quote_data,
-				'sort_order' => $this->config->get('nzpost_sort_order'),
-				'error'      => $error_msg
-			);
 		}
 		else
 		{
@@ -189,15 +217,13 @@ class ModelShippingNZPost extends Model {
 			
 			$result = json_decode($response);
 			
-			$error = '';
-			$error_msg = '';
-			
 			$quote_data = array();
-			
 			if ($result->status == "success") {
 				foreach ($result->products as $product) {
-					if((($this->config->get('nzpost_international_signature')=='') || $product->signature_required == '1') && 
-					   (($this->config->get('nzpost_international_tracking')=='') || $product->has_tracking == '1')){
+					if((($this->config->get('nzpost_international_TIEX')=='1') && $product->service_code == 'TIEX') || 
+					   (($this->config->get('nzpost_international_TIEC')=='1') && $product->service_code == 'TIEC') || 
+					   (($this->config->get('nzpost_international_TIALP')=='1') && $product->service_code == 'TIALP') || 
+					   (($this->config->get('nzpost_international_TIELP')=='1') && $product->service_code == 'TIELP')){
 						$quote_data['nzpost_'.$product->service_code] = array(
 							'code'         => 'nzpost.nzpost_'.$product->service_code,
 							'title'        => $product->group.' - '.$product->min_delivery_target.'-'.$product->max_delivery_target.' days.',
@@ -207,9 +233,28 @@ class ModelShippingNZPost extends Model {
 						);
 					}
 				}
+				
+				if(count($quote_data) == 0)
+				{
+					$method_data = array(
+						'code'       => 'nzpost',
+						'title'      => $this->language->get('text_title'),
+						'quote'      => $quote_data,
+						'sort_order' => $this->config->get('nzpost_sort_order'),
+						'error'      => $this->language->get('error_no_services')
+					);
+					return $method_data;
+				}
+				
 			} else {
-				$error = $response->status;
-				$error_msg = '';
+				$method_data = array(
+					'code'       => 'nzpost',
+					'title'      => $this->language->get('text_title'),
+					'quote'      => $quote_data,
+					'sort_order' => $this->config->get('nzpost_sort_order'),
+					'error'      => $this->language->get('error_failed')
+				);
+				return $method_data;
 			}
 			
 			$title = $this->language->get('text_title');
@@ -217,14 +262,6 @@ class ModelShippingNZPost extends Model {
 			if ($this->config->get('nzpost_display_weight')) {	  
 				$title .= ' (' . $this->language->get('text_weight') . ' ' . $this->weight->format($weight, $this->config->get('nzpost_weight_class_id')) . ')';
 			}
-		
-			$method_data = array(
-				'code'       => 'nzpost',
-				'title'      => $title,
-				'quote'      => $quote_data,
-				'sort_order' => $this->config->get('nzpost_sort_order'),
-				'error'      => $error_msg
-			);
 		}
 		
 		if ($quote_data) {
@@ -240,6 +277,38 @@ class ModelShippingNZPost extends Model {
 		return $method_data;
 	}
 
+	function getItemsCount()
+	{
+		$items = 0;
+		foreach ($this->cart->getProducts() as $key=>$attrs) {
+			if ($attrs['shipping']) {
+				$quantity = trim($attrs['quantity']);
+				$items += $quantity;
+			}
+		}
+		return $items;
+	}
+	
+	function getItemWeightAndDimension($nzpost_length_class_id, $nzpost_weight_class_id)
+	{
+		$details = array();
+		foreach ($this->cart->getProducts() as $key=>$attrs) {
+			if ($attrs['shipping']) {
+				$length = trim($attrs['length']);
+				$width = trim($attrs['width']);
+				$height = trim($attrs['height']);
+				$weight = trim($attrs['weight']);
+				if (is_numeric($length) && $length > 0 && is_numeric($width) && $width > 0 && is_numeric($height) && $height > 0) {
+					$details['length'] = $this->length->convert($length, $attrs['length_class_id'], $nzpost_length_class_id);
+					$details['width'] = $this->length->convert($width, $attrs['length_class_id'], $nzpost_length_class_id);
+					$details['height'] = $this->length->convert($height, $attrs['length_class_id'], $nzpost_length_class_id);
+					$details['weight'] = $this->length->convert($weight, $attrs['weight_class_id'], $nzpost_weight_class_id);
+				}
+			}
+		}
+		return $details;
+	}
+	
 	function getCubicVolume($nzpost_length_class_id)
 	{
 		$totalVolume = 0;

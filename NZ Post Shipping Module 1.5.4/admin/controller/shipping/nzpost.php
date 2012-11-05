@@ -26,8 +26,8 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	25 October 2012
-	Version:	0.3
+	Updated: 	6 November 2012
+	Version:	0.4
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
@@ -77,22 +77,28 @@ class ControllerShippingNZPost extends Controller {
 		
 		$this->data['text_nzpost_national_tracking'] = $this->language->get('text_national_tracking');
 		$this->data['text_nzpost_national_signature'] = $this->language->get('text_national_signature');
+		$this->data['text_nzpost_national_standard'] = $this->language->get('text_national_standard');
+		$this->data['text_nzpost_national_express'] = $this->language->get('text_national_express');
 		$this->data['text_nzpost_national_postage_only'] = $this->language->get('text_national_postage_only');
 		
 		$this->data['text_nzpost_international_tracking'] = $this->language->get('text_international_tracking');
 		$this->data['text_nzpost_international_signature'] = $this->language->get('text_international_signature');
+
+		$this->data['text_nzpost_international_TIEX'] = $this->language->get('text_TIEX');
+		$this->data['text_nzpost_international_TIEC'] = $this->language->get('text_TIEC');
+		$this->data['text_nzpost_international_TIALP'] = $this->language->get('text_TIALP');
+		$this->data['text_nzpost_international_TIELP'] = $this->language->get('text_TIELP');
+
 		
 		$this->data['entry_status'] = $this->language->get('entry_status');
 		$this->data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 		$this->data['entry_tax'] = $this->language->get('entry_tax');
-		$this->data['entry_international_tax'] = $this->language->get('entry_international_tax');
 		$this->data['entry_sort_order'] = $this->language->get('entry_sort_order');
 		$this->data['entry_api_key'] = $this->language->get('entry_api_key');
 		$this->data['entry_format'] = $this->language->get('entry_format');
 		$this->data['entry_test'] = $this->language->get('entry_test');
 		$this->data['entry_national_options'] = $this->language->get('entry_national_options');
 		$this->data['entry_international_options'] = $this->language->get('entry_international_options');
-		$this->data['entry_carrier'] = $this->language->get('entry_carrier');
 		$this->data['entry_display_weight'] = $this->language->get('entry_display_weight');
 		$this->data['entry_source_postcode'] = $this->language->get('entry_source_postcode');
 		
@@ -147,23 +153,6 @@ class ControllerShippingNZPost extends Controller {
 		} else {
 			$this->data['nzpost_api_key'] = $this->config->get('nzpost_api_key');
 		}
-
-		$this->data['carriers'] = array();
-		  
-		$this->data['pickups'][] = array(
-			'value' => 'nzpost',
-			'text'  => $this->language->get('text_nzpost')
-		);
-
-		$this->data['pickups'][] = array(
-			'value' => 'courierpost',
-			'text'  => $this->language->get('text_courierpost')
-		);
-
-		$this->data['pickups'][] = array(
-			'value' => 'all',
-			'text'  => $this->language->get('text_all')
-		);
 			
 		if (isset($this->request->post['nzpost_source_postcode'])) {
 			$this->data['nzpost_source_postcode'] = $this->request->post['nzpost_source_postcode'];
@@ -187,21 +176,41 @@ class ControllerShippingNZPost extends Controller {
 		} else {
 			$this->data['nzpost_national_signature'] = $this->config->get('nzpost_national_signature');
 		}
+		if (isset($this->request->post['nzpost_national_standard'])) {
+			$this->data['nzpost_national_standard'] = $this->request->post['nzpost_national_standard'];
+		} else {
+			$this->data['nzpost_national_standard'] = $this->config->get('nzpost_national_standard');
+		}
+		if (isset($this->request->post['nzpost_national_express'])) {
+			$this->data['nzpost_national_express'] = $this->request->post['nzpost_national_express'];
+		} else {
+			$this->data['nzpost_national_express'] = $this->config->get('nzpost_national_express');
+		}
 		if (isset($this->request->post['nzpost_national_postage_only'])) {
 			$this->data['nzpost_national_postage_only'] = $this->request->post['nzpost_national_postage_only'];
 		} else {
 			$this->data['nzpost_national_postage_only'] = $this->config->get('nzpost_national_postage_only');
 		}
 		
-		if (isset($this->request->post['nzpost_international_tracking'])) {
-			$this->data['nzpost_international_tracking'] = $this->request->post['nzpost_international_tracking'];
+		if (isset($this->request->post['nzpost_international_TIEX'])) {
+			$this->data['nzpost_international_TIEX'] = $this->request->post['nzpost_international_TIEX'];
 		} else {
-			$this->data['nzpost_international_tracking'] = $this->config->get('nzpost_international_tracking');
+			$this->data['nzpost_international_TIEX'] = $this->config->get('nzpost_international_TIEX');
 		}
-		if (isset($this->request->post['nzpost_international_signature'])) {
-			$this->data['nzpost_international_signature'] = $this->request->post['nzpost_international_signature'];
+		if (isset($this->request->post['nzpost_international_TIEC'])) {
+			$this->data['nzpost_international_TIEC'] = $this->request->post['nzpost_international_TIEC'];
 		} else {
-			$this->data['nzpost_international_signature'] = $this->config->get('nzpost_international_signature');
+			$this->data['nzpost_international_TIEC'] = $this->config->get('nzpost_international_TIEC');
+		}
+		if (isset($this->request->post['nzpost_international_TIALP'])) {
+			$this->data['nzpost_international_TIALP'] = $this->request->post['nzpost_international_TIALP'];
+		} else {
+			$this->data['nzpost_international_TIALP'] = $this->config->get('nzpost_international_TIALP');
+		}
+		if (isset($this->request->post['nzpost_international_TIELP'])) {
+			$this->data['nzpost_international_TIELP'] = $this->request->post['nzpost_international_TIELP'];
+		} else {
+			$this->data['nzpost_international_TIELP'] = $this->config->get('nzpost_international_TIELP');
 		}
 
 		if (isset($this->request->post['nzpost_display_weight'])) {
@@ -214,12 +223,6 @@ class ControllerShippingNZPost extends Controller {
 			$this->data['nzpost_tax_class_id'] = $this->request->post['nzpost_tax_class_id'];
 		} else {
 			$this->data['nzpost_tax_class_id'] = $this->config->get('nzpost_tax_class_id');
-		}
-		
-		if (isset($this->request->post['nzpost_international_tax_class_id'])) {
-			$this->data['nzpost_international_tax_class_id'] = $this->request->post['nzpost_international_tax_class_id'];
-		} else {
-			$this->data['nzpost_international_tax_class_id'] = $this->config->get('nzpost_international_tax_class_id');
 		}
 		
 		$this->load->model('localisation/tax_class');

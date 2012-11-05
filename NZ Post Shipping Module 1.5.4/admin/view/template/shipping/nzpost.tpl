@@ -68,6 +68,24 @@
                     <?php } ?>
                   </div>
                   <div class="even">
+                    <?php if ($nzpost_national_standard) { ?>
+                    <input type="checkbox" name="nzpost_national_standard" value="1" checked="checked" />
+                    <?php echo $text_nzpost_national_standard; ?>
+                    <?php } else { ?>
+                    <input type="checkbox" name="nzpost_national_standard" value="1" />
+                    <?php echo $text_nzpost_national_standard; ?>
+                    <?php } ?>
+                  </div>
+                  <div class="even">
+                    <?php if ($nzpost_national_express) { ?>
+                    <input type="checkbox" name="nzpost_national_express" value="1" checked="checked" />
+                    <?php echo $text_nzpost_national_express; ?>
+                    <?php } else { ?>
+                    <input type="checkbox" name="nzpost_national_express" value="1" />
+                    <?php echo $text_nzpost_national_express; ?>
+                    <?php } ?>
+                  </div>
+                  <div class="odd">
                     <?php if ($nzpost_national_postage_only) { ?>
                     <input type="checkbox" name="nzpost_national_postage_only" value="1" checked="checked" />
                     <?php echo $text_nzpost_national_postage_only; ?>
@@ -99,39 +117,44 @@
               <div id="International">
                 <div class="scrollbox">
                   <div class="even">
-                    <?php if ($nzpost_international_tracking) { ?>
-                    <input type="checkbox" name="nzpost_international_tracking" value="1" checked="checked" />
-                    <?php echo $text_nzpost_international_tracking; ?>
+                    <?php if ($nzpost_international_TIEX) { ?>
+                    <input type="checkbox" name="nzpost_international_TIEX" value="1" checked="checked" />
+                    <?php echo $text_nzpost_international_TIEX; ?>
                     <?php } else { ?>
-                    <input type="checkbox" name="nzpost_international_tracking" value="1" />
-                    <?php echo $text_nzpost_international_tracking; ?>
+                    <input type="checkbox" name="nzpost_international_TIEX" value="1" />
+                    <?php echo $text_nzpost_international_TIEX; ?>
                     <?php } ?>
                   </div>
                   <div class="odd">
-                    <?php if ($nzpost_international_signature) { ?>
-                    <input type="checkbox" name="nzpost_international_signature" value="1" checked="checked" />
-                    <?php echo $text_nzpost_international_signature; ?>
+                    <?php if ($nzpost_international_TIEC) { ?>
+                    <input type="checkbox" name="nzpost_international_TIEC" value="1" checked="checked" />
+                    <?php echo $text_nzpost_international_TIEC; ?>
                     <?php } else { ?>
-                    <input type="checkbox" name="nzpost_international_signature" value="1" />
-                    <?php echo $text_nzpost_international_signature; ?>
+                    <input type="checkbox" name="nzpost_international_TIEC" value="1" />
+                    <?php echo $text_nzpost_international_TIEC; ?>
+                    <?php } ?>
+                  </div>
+                  <div class="even">
+                    <?php if ($nzpost_international_TIALP) { ?>
+                    <input type="checkbox" name="nzpost_international_TIALP" value="1" checked="checked" />
+                    <?php echo $text_nzpost_international_TIALP; ?>
+                    <?php } else { ?>
+                    <input type="checkbox" name="nzpost_international_TIALP" value="1" />
+                    <?php echo $text_nzpost_international_TIALP; ?>
+                    <?php } ?>
+                  </div>
+                  <div class="odd">
+                    <?php if ($nzpost_international_TIELP) { ?>
+                    <input type="checkbox" name="nzpost_international_TIELP" value="1" checked="checked" />
+                    <?php echo $text_nzpost_international_TIELP; ?>
+                    <?php } else { ?>
+                    <input type="checkbox" name="nzpost_international_TIELP" value="1" />
+                    <?php echo $text_nzpost_international_TIELP; ?>
                     <?php } ?>
                   </div>
                 </div>
               </div>
               <a onclick="$(this).parent().find(':checkbox').attr('checked', true);"><?php echo $text_select_all; ?></a> / <a onclick="$(this).parent().find(':checkbox').attr('checked', false);"><?php echo $text_unselect_all; ?></a></td>
-          </tr>
-          <tr>
-            <td><?php echo $entry_international_tax; ?></td>
-            <td><select name="nzpost_international_tax_class_id">
-                <option value="0"><?php echo $text_none; ?></option>
-                <?php foreach ($tax_classes as $tax_class) { ?>
-                <?php if ($tax_class['tax_class_id'] == $nzpost_international_tax_class_id) { ?>
-                <option value="<?php echo $tax_class['tax_class_id']; ?>" selected="selected"><?php echo $tax_class['title']; ?></option>
-                <?php } else { ?>
-                <option value="<?php echo $tax_class['tax_class_id']; ?>"><?php echo $tax_class['title']; ?></option>
-                <?php } ?>
-                <?php } ?>
-              </select></td>
           </tr>
           <tr>
             <td><?php echo $entry_display_weight; ?></td>
@@ -175,6 +198,10 @@
           <tr>
             <td><?php echo $entry_sort_order; ?></td>
             <td><input type="text" name="nzpost_sort_order" value="<?php echo $nzpost_sort_order; ?>" size="1" /></td>
+          </tr>
+          <tr>
+            <td>Developed By:</td>
+            <td>Please support my work by helping, donating, linking, liking on facebook or following on twitter <a href="http://www.goldfishinteractive.co.nz/" target="_blank">Goldfish Interactive Ltd</a></td>
           </tr>
         </table>
       </form>

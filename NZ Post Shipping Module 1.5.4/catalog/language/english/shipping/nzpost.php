@@ -26,8 +26,8 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	25 October 2012
-	Version:	0.3
+	Updated: 	6 November 2012
+	Version:	0.4
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
@@ -52,5 +52,7 @@ $_['text_weight']          				= 'Weight:';
 
 $_['error_units']          				= 'Sorry, shipping can\'t be calculated. The website does not have Kg or mm units defined for conversion. Please contact the site owner to resolve this issue.';
 $_['error_volume']         				= 'Sorry, shipping can\'t be calculated. The website does not have dimensions and weight assigned for some products. Please contact the site owner to resolve this issue.';
+$_['error_no_services']         		= 'Sorry, the services available may not be suitabale, please contact the merchant to arrange shipping.';
+$_['error_failed']         				= 'Sorry, your items may be too big for NZ Post to calculate as one shipment. Please create separate orders or contact the merchant to arrange shipping.';
 
 ?>

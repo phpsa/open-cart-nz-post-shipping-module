@@ -26,8 +26,8 @@
 				LinkedIn 	http://www.linkedin.com/company/goldfish-interactive-ltd
 				
 	Created:	30 September 2011,
-	Updated: 	25 October 2012
-	Version:	0.3
+	Updated: 	6 November 2012
+	Version:	0.4
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
@@ -61,21 +61,28 @@ $_['text_select_all']                    					= 'Select All';
 $_['text_unselect_all']                    					= 'Unselect All';
 $_['text_all_zones']                    					= 'All Zones';
 $_['text_none']                    							= 'None';
+
+// Options
 $_['text_national_tracking']    							= 'Tracking Required';
 $_['text_national_signature']    							= 'Signature Required';
+$_['text_national_standard']    							= 'Standard 1-3 Days';
+$_['text_national_express']    								= 'Express Next Day';
 $_['text_national_postage_only']    						= 'Quote for Parcels Only';
-$_['text_international_tracking']    						= 'Tracking Required';
-$_['text_international_signature']    						= 'Signature Required';
+
+// Services
+$_['text_TIEX']    											= 'International Express Courier, Tracked, Signature';
+$_['text_TIEC']    											= 'International Economy Courier, Tracked, Signature';
+$_['text_TIALP']    										= 'International Air, Not Tracked, No Signature';
+$_['text_TIELP']    										= 'International Economy, Not Tracked, No Signature';
 
 // Entry
 $_['entry_api_key']                	= 'API Key:<span class="help">Enter the api key assigned to you by NZ Post.</span>';
 $_['entry_source_postcode']        	= 'Origin NZ Postal Code:<span class="help">Enter your origin postalcode.</span>';
 $_['entry_test']                   	= 'Test Mode:<span class="help">Use this module in Test (YES) or Production mode (NO)?</span>';
-$_['entry_national_options']        = 'National Options:<span class="help">Select the required NZ Post options.</span>';
-$_['entry_international_options']   = 'International Options:<span class="help">Select the required NZ Post options.</span>';
+$_['entry_national_options']        = 'National Options:<span class="help">Select the NZ Post options.</span>';
+$_['entry_international_options']   = 'International Options:<span class="help">Select the NZ Post services you support.</span>';
 $_['entry_display_weight']         	= 'Display Delivery Weight:<br /><span class="help">Do you want to display the shipping weight? (e.g. Delivery Weight : 2.7674 Kg\'s)</span>';
-$_['entry_tax']                    	= 'National Tax Class:';
-$_['entry_international_tax']       = 'International Tax Class:';
+$_['entry_tax']                    	= 'Tax Class:';
 $_['entry_geo_zone']               	= 'Geo Zone:';
 $_['entry_status']                 	= 'Status:';
 $_['entry_sort_order']             	= 'Sort Order:';
