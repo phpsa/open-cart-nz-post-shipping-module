@@ -24,7 +24,7 @@ Created:		30 September 2011,
 
 Updated: 		6 November 2012
 
-Version:		0.4 (Its a beta)
+Version:		0.5 (Its a beta)
 
 
 Requirements:	1)	This version is tested with Open Cart v1.5.4
