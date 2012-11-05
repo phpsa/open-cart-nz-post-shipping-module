@@ -27,7 +27,7 @@
 				
 	Created:	30 September 2011,
 	Updated: 	6 November 2012
-	Version:	0.4
+	Version:	0.5
 	
 	Notes:		This module is provided for free, I hope it proves useful
 				to you or your clients. Please consider my time and effort
